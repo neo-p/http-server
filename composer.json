@@ -3,18 +3,12 @@
     "description": "HTTP SERVER",
     "type": "library",
     "license": "Apache-2.0",
-    "authors": [
-        {
-            "name": "6xiaowu9",
-            "email": "736518585@qq.com"
-        }
-    ],
     "require": {
         "php": ">=7.0",
-        "neo-p/http-message": "^0.0.1",
-        "neo-p/server": "^0.0.1",
-        "neo-p/annotation": "^0.0.1",
-        "neo-p/di": "^0.0.1"
+        "neo-p/http-message": "^1.0.0",
+        "neo-p/server": "^1.0.0",
+        "neo-p/annotation": "^1.0.0",
+        "neo-p/di": "^1.0.0"
     },
     "autoload": {
         "psr-4": {
