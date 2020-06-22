@@ -13,8 +13,9 @@ class Service
         $request = Context::get(Context::REQUEST);
         $response = Context::get(Context::RESPONSE);
         $route = $request->getUri()->getPath();
-        if (RouteProvider::checkRoute($route)) {
-            $data = RouteProvider::getRoute($route)();
+        $method = $request->getMethod();
+        if (RouteProvider::checkRoute($method, $route)) {
+            $data = RouteProvider::getRoute($method, $route)();
             if (!($data instanceof Response)) {
                 if (is_array($data) || is_object($data)) {
                     $response->json($data);

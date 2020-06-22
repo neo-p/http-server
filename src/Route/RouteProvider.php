@@ -7,19 +7,19 @@ class RouteProvider
 
     private static $groups = [];
 
-    public static function addRoute(string $route, callable $callable): void
+    public static function addRoute(string $method, string $route, callable $callable): void
     {
-        self::$routes[$route] = $callable;
+        self::$routes[$method][$route] = $callable;
     }
 
-    public static function checkRoute(string $route): bool
+    public static function checkRoute(string $method, string $route): bool
     {
-        return isset(self::$routes[$route]);
+        return isset(self::$routes[$method][$route]);
     }
 
-    public static function getRoute(string $route): callable
+    public static function getRoute(string $method, string $route): callable
     {
-        return self::$routes[$route];
+        return self::$routes[$method][$route];
     }
 
     public static function getRoutes(): array

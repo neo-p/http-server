@@ -18,6 +18,7 @@ class RouteHandler extends Handler
     public function handle(Route $annotation, $reflection)
     {
         $route = $annotation->getRoute();
+        $method = strtoupper($annotation->getMethod());
         if ($reflection instanceof ReflectionClass) {
             $route = $this->rmSuffix(
                 $this->addPrefix($route)
@@ -29,7 +30,7 @@ class RouteHandler extends Handler
             if ($newRoute != $route) {
                 $route = RouteProvider::getRouteGroup($class) . $newRoute;
             }
-            RouteProvider::addRoute($route, $reflection->getClosure(Container::getDefinition($this->className)));
+            RouteProvider::addRoute($method, $route, $reflection->getClosure(Container::getDefinition($this->className)));
         }
     }
 

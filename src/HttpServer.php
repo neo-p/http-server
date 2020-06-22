@@ -13,6 +13,7 @@ use NeoP\Http\Server\Events\EventType;
 use ReflectionMethod;
 use NeoP\Http\Server\Middleware\NotFoundMiddleware;
 use NeoP\Server\Middleware\MiddlewareProvider;
+use NeoP\Http\Server\Exception\HttpConfigException;
 
 /**
  * @Depend()
@@ -26,6 +27,7 @@ class HttpServer implements ServiceInerface
     protected $mode;
     protected $setting;
     protected $options;
+    protected $sockType;
 
     public function beforeStart()
     {
@@ -40,14 +42,16 @@ class HttpServer implements ServiceInerface
         $this->mode = $mode;
         $this->setting = $setting;
         $this->options = service('server.options', []);
+        $this->sockType = SWOOLE_SOCK_TCP;
         $this->optionsParser();
+        $this->afterSetting();
         $this->registerMiddleware();
         $this->newServer();
     }
 
     public function newServer()
     {
-        $this->server = new SwooleServer($this->host, $this->port, $this->mode, SWOOLE_TCP);
+        $this->server = new SwooleServer($this->host, $this->port, $this->mode, $this->sockType);
         $this->server->set($this->setting);
     }
 
@@ -91,15 +95,28 @@ class HttpServer implements ServiceInerface
         return $this->server;
     }
 
-    
     public function optionsParser(): void
     {
-        foreach ($this->options as $option => $value) {
-            if ($option == 'http2') {
-                $this->setting['open_http2_protocol'] = $value;
+        if (isset($this->options['setting'])) {
+            foreach ($this->options['setting'] as $key => $value) {
+                $this->setting[$key] = $value;
             }
-
         }
+
+        if (isset($this->options['ssl']) && $this->options['ssl']['enable']) {
+            if (! isset($this->options['ssl']['cert']) || ! isset($this->options['ssl']['key'])) {
+                throw new HttpConfigException("SSL error: Please make sure to fill in the ssl key and cert.");
+            }
+            $this->setting['ssl_cert_file'] = $this->options['ssl']['cert'];
+            $this->setting['ssl_key_file'] = $this->options['ssl']['key'];
+            $this->sockType = SWOOLE_SOCK_TCP | SWOOLE_SSL;
+        }
+
+
+    }
+    
+    public function afterSetting(): void
+    {
     }
     
 }

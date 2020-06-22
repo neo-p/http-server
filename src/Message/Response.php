@@ -72,6 +72,8 @@ class Response extends HttpMessageResponse
             } else {
                 $body = $this->getBody();
                 $contents = $body->getContents();
+                $this->sendHeader();
+                $this->sendTrailer();
                 $this->swooleResponse->end($contents);
             }
             $this->isSend = true;
@@ -101,5 +103,17 @@ class Response extends HttpMessageResponse
     public function exit(?int $status = NULL, ?string $phrase = '')
     {
         throw new HttpExitException($phrase, $status);
+    }
+
+    private function sendHeader()
+    {
+        foreach($this->headers() as $key => $value) {
+            $this->swooleResponse->header($key, $this->getHeaderLine($key));
+        }
+    }
+
+    private function sendTrailer()
+    {
+        $this->swooleResponse->trailer("code", 123);
     }
 }
