@@ -29,6 +29,8 @@ final class Route implements AnnotationMappingInterface
     
     private $middlewares = [];
 
+    private $protobuf = '';
+
     function __construct($params)
     {
         annotationBind($this, $params, 'setRoute');
@@ -59,8 +61,18 @@ final class Route implements AnnotationMappingInterface
         $this->middlewares = $middlewares;
     }
 
-    public function getMiddlewares(): string
+    public function getMiddlewares(): array
     {
         return $this->middlewares;
+    }
+
+    public function setProtobuf(string $protobuf): void
+    {
+        $this->protobuf = $protobuf;
+    }
+
+    public function getProtobuf(): string
+    {
+        return $this->protobuf;
     }
 }

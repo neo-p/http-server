@@ -6,6 +6,8 @@ use NeoP\Http\Server\Exception\HttpExitException;
 use Swoole\Http\Response as SwooleResponse;
 use NeoP\Http\Message\Response as HttpMessageResponse;
 use NeoP\Http\Message\Stream\Stream;
+use NeoP\Http\Server\GrpcServer;
+use NeoP\Http\Server\Http2Server;
 
 class Response extends HttpMessageResponse
 {
@@ -20,6 +22,12 @@ class Response extends HttpMessageResponse
      * @var boolean
      */
     protected $isDownload = false;
+
+    /**
+     * trailer
+     * @var array
+     */
+    protected $trailer = [];
 
     /**
      * is sent file object.
@@ -73,7 +81,13 @@ class Response extends HttpMessageResponse
                 $body = $this->getBody();
                 $contents = $body->getContents();
                 $this->sendHeader();
-                $this->sendTrailer();
+                $service = service('server.service');
+                if ($service === GrpcServer::class || $service === Http2Server::class) {
+                    if ($service === GrpcServer::class) {
+                        $this->grpcHeader();
+                    }
+                    $this->sendTrailer();
+                }
                 $this->swooleResponse->end($contents);
             }
             $this->isSend = true;
@@ -100,6 +114,13 @@ class Response extends HttpMessageResponse
         return $this;
     }
 
+    public function exitGrpc(?int $status = NULL, ?string $phrase = '')
+    {
+        $this->trailer['grpc-status'] = $status;
+        $this->trailer['grpc-message'] = $phrase;
+        $this->send();
+    }
+
     public function exit(?int $status = NULL, ?string $phrase = '')
     {
         throw new HttpExitException($phrase, $status);
@@ -114,6 +135,29 @@ class Response extends HttpMessageResponse
 
     private function sendTrailer()
     {
-        $this->swooleResponse->trailer("code", 123);
+        if (count($this->trailer) > 0) {
+            $this->swooleResponse->header('te', 'trailers');
+            foreach ($this->trailer as $key => $value) {
+                $this->swooleResponse->trailer($key, $value);
+            }
+        }
+    }
+
+    public function withTrailer($key, $value)
+    {
+        $this->trailer[$key] = $value;
+    }
+
+    private function grpcHeader()
+    {
+        $this->swooleResponse->header('content-type', 'application/grpc');
+        $this->swooleResponse->header('trailer', 'grpc-status, grpc-message');
+        if (!isset($this->trailer['grpc-status'])) {
+            $this->trailer['grpc-status'] = 0;
+        }
+
+        if (!isset($this->trailer['grpc-message'])) {
+            $this->trailer['grpc-message'] = '';
+        }
     }
 }

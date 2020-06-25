@@ -11,6 +11,7 @@ use NeoP\Server\Annotation\Mapping\SwooleEvent;
 use NeoP\Http\Server\Events\EventType;
 use NeoP\Http\Server\Message\Processor;
 use NeoP\Http\Server\Service\Service;
+use NeoP\Http\Server\HttpServer;
 use NeoP\Http\Server\Exception\HttpExitException;
 use \Exception;
 
@@ -24,7 +25,6 @@ class OnRequestEvent
         // TODO
         // Request & Response
         Processor::messageProcessing($request, $response);
-
         // 抛错直接中断所有后续事件
         try {
             // Middleware

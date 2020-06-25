@@ -1,15 +1,17 @@
 <?php 
 namespace NeoP\Http\Server\Route;
 
+use NeoP\Http\Server\Route\RouteEntity;
+
 class RouteProvider 
 {
     private static $routes = [];
 
     private static $groups = [];
 
-    public static function addRoute(string $method, string $route, callable $callable): void
+    public static function addRoute(string $method, string $route, RouteEntity $routeEntity): void
     {
-        self::$routes[$method][$route] = $callable;
+        self::$routes[$method][$route] = $routeEntity;
     }
 
     public static function checkRoute(string $method, string $route): bool
@@ -17,7 +19,7 @@ class RouteProvider
         return isset(self::$routes[$method][$route]);
     }
 
-    public static function getRoute(string $method, string $route): callable
+    public static function getRoute(string $method, string $route): RouteEntity
     {
         return self::$routes[$method][$route];
     }

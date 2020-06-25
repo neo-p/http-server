@@ -7,6 +7,9 @@ use NeoP\Annotation\Annotation\Handler\Handler;
 use NeoP\Annotation\Annotation\Mapping\AnnotationHandler;
 use NeoP\Http\Server\Annotation\Mapping\Route;
 use NeoP\Http\Server\Route\RouteProvider;
+use NeoP\Http\Server\Route\RouteEntity;
+use NeoP\Http\Server\GrpcServer;
+use NeoP\Http\Server\Exception\GrpcException;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -19,6 +22,8 @@ class RouteHandler extends Handler
     {
         $route = $annotation->getRoute();
         $method = strtoupper($annotation->getMethod());
+        $middlewares = $annotation->getMiddlewares();
+        $protobuf = $annotation->getProtobuf();
         if ($reflection instanceof ReflectionClass) {
             $route = $this->rmSuffix(
                 $this->addPrefix($route)
@@ -26,11 +31,32 @@ class RouteHandler extends Handler
             RouteProvider::addRouteGroup($this->className, $route);
         } elseif ($reflection instanceof ReflectionMethod) {
             $class = $this->className;
+            $methodName = $reflection->getName();
+            if (! $route) {
+                $route = $methodName;
+            }
             $newRoute = $this->addPrefix($route);
             if ($newRoute != $route) {
                 $route = RouteProvider::getRouteGroup($class) . $newRoute;
             }
-            RouteProvider::addRoute($method, $route, $reflection->getClosure(Container::getDefinition($this->className)));
+            $service = service('server.service');
+            if ($service === GrpcServer::class) {
+                if ($protobuf) {
+                    if (! class_exists($protobuf)) {
+                        throw new GrpcException("Grpc error: protobuf [" . $protobuf . "] is not use.");
+                    }
+                } else {
+                    throw new GrpcException("Grpc error: Class [" . $class . "] Method [" . $methodName . "] @Route params:protobuf is not defined.");
+                }
+            }
+            $routeEntity = new RouteEntity(
+                $route,
+                $method,
+                $protobuf,
+                $middlewares,
+                $reflection->getClosure(Container::getDefinition($this->className))
+            );
+            RouteProvider::addRoute($method, $route, $routeEntity);
         }
     }
 

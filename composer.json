@@ -7,10 +7,14 @@
         "php": ">=7.0",
         "neo-p/http-message": "^1.0.0",
         "neo-p/server": "^1.0.0",
+        "neo-p/config": "^1.0.0",
         "neo-p/annotation": "^1.0.0",
         "neo-p/di": "^1.0.0"
     },
     "autoload": {
+        "files": [
+            "src/Helper/Function.php"
+        ],
         "psr-4": {
             "NeoP\\Http\\Server\\": "src/"
         }

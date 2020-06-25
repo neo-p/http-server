@@ -16,20 +16,15 @@ use ReflectionMethod;
 
 /**
  * @Depend()
- * @var Http2Server
+ * @var GrpcServer
  */
-class Http2Server extends HttpServer implements ServiceInerface
+class GrpcServer extends Http2Server implements ServiceInerface
 {
 
     public function beforeStart()
     {
-        Log::info("HTTP2 Server starting...", 0, Log::MODE_DEFAULT, Log::FG_WHITE);
+        Log::info("gRPC Server starting...", 0, Log::MODE_DEFAULT, Log::FG_WHITE);
         Log::info("---| HOST: " . $this->host . " | PORT: " . $this->port . " |--- ", 0, Log::MODE_DEFAULT);
     }
-    
-    public function afterSetting(): void
-    {
-        $this->setting['open_http2_protocol'] = true;
-    }
-    
+
 }
