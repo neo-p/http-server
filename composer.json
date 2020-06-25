@@ -1,5 +1,5 @@
 {
-    "name": "nep-p/http-server",
+    "name": "neo-p/http-server",
     "description": "HTTP SERVER",
     "type": "library",
     "license": "Apache-2.0",
