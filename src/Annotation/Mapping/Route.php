@@ -18,14 +18,14 @@ use function annotationBind;
  * })
  *
  */
-final class Route implements AnnotationMappingInterface
+final class Route  extends Method implements AnnotationMappingInterface
 {
     /**
      * @Required()
      */
     private $route;
     
-    private $method = Method::GET;
+    private $method = '';
     
     private $middlewares = [];
 
@@ -36,12 +36,12 @@ final class Route implements AnnotationMappingInterface
         annotationBind($this, $params, 'setRoute');
     }
 
-    public function setRoute(string $route): void
+    public function setRoute(?string $route = '/'): void
     {
         $this->route = $route;
     }
 
-    public function getRoute(): string
+    public function getRoute(): ?string
     {
         return $this->route;
     }

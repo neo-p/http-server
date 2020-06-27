@@ -29,12 +29,12 @@ class RouteProvider
         return self::$routes;
     }
 
-    public static function addRouteGroup(string $class, string $group): void
+    public static function addRouteGroup(string $class, RouteEntity $group): void
     {
         self::$groups[$class] = $group;
     }
 
-    public static function getRouteGroup(string $class): string
+    public static function getRouteGroup(string $class): RouteEntity
     {
         return self::$groups[$class];
     }

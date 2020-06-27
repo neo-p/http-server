@@ -10,6 +10,7 @@ use NeoP\Http\Server\Route\RouteProvider;
 use NeoP\Http\Server\Route\RouteEntity;
 use NeoP\Http\Server\GrpcServer;
 use NeoP\Http\Server\Exception\GrpcException;
+use NeoP\Http\Server\Route\Method;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -28,7 +29,12 @@ class RouteHandler extends Handler
             $route = $this->rmSuffix(
                 $this->addPrefix($route)
             );
-            RouteProvider::addRouteGroup($this->className, $route);
+            $routeEntity = new RouteEntity(
+                $method,
+                $route,
+                $middlewares
+            );
+            RouteProvider::addRouteGroup($this->className, $routeEntity);
         } elseif ($reflection instanceof ReflectionMethod) {
             $class = $this->className;
             $methodName = $reflection->getName();
@@ -36,8 +42,12 @@ class RouteHandler extends Handler
                 $route = $methodName;
             }
             $newRoute = $this->addPrefix($route);
+            $parent = RouteProvider::getRouteGroup($class);
             if ($newRoute != $route) {
-                $route = RouteProvider::getRouteGroup($class) . $newRoute;
+                $route = $parent->getMapping() . $newRoute;
+            }
+            if ($method == "") {
+                $method =$parent->getMethod() ?? Method::GET;
             }
             $service = service('server.service');
             if ($service === GrpcServer::class) {
@@ -50,17 +60,17 @@ class RouteHandler extends Handler
                 }
             }
             $routeEntity = new RouteEntity(
-                $route,
                 $method,
-                $protobuf,
+                $route,
                 $middlewares,
+                $protobuf,
                 $reflection->getClosure(Container::getDefinition($this->className))
             );
             RouteProvider::addRoute($method, $route, $routeEntity);
         }
     }
 
-    protected function rmSuffix(string $str, string $suffix = "/")
+    protected function rmSuffix(?string $str = '/', string $suffix = "/")
     {
         if (substr($str, -1, 1) == $suffix) {
             $str = substr($str, 0, -1);
@@ -68,7 +78,7 @@ class RouteHandler extends Handler
         return $str;
     } 
 
-    protected function addPrefix(string $str, string $prefix = "/")
+    protected function addPrefix(?string $str = '/', string $prefix = "/")
     {
         if (substr($str, 0, 1) != $prefix) {
             $str = $prefix . $str;

@@ -15,9 +15,9 @@ class RouteEntity
     function __construct(
         string $method,
         string $mapping,
-        string $protobuf,
         array $middlewares,
-        callable $callable
+        ?string $protobuf = null,
+        ?callable $callable = null
     ) 
     {
         $this->_mapping = $mapping;
