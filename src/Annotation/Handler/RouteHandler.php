@@ -47,7 +47,7 @@ class RouteHandler extends Handler
                 $route = $parent->getMapping() . $newRoute;
             }
             if ($method == "") {
-                $method =$parent->getMethod() ?? Method::GET;
+                $method = $parent->getMethod() == "" ? Method::GET : $parent->getMethod();
             }
             $service = service('server.service');
             if ($service === GrpcServer::class) {
