@@ -18,7 +18,7 @@ if (!function_exists('stdout')) {
             $resp = '';
         } else {
             $resp = new stdClass();
-            $resp->code = 0; 
+            $resp->code = 0;
             $resp->data = new stdClass();
             $resp->message = '';
         }
@@ -39,7 +39,7 @@ if (!function_exists('stdout')) {
                         // 转对象
                         if (is_array($value)) {
                             $firstIndex = key($value);
-                            if (is_int($firstIndex) || $firstIndex == intval($firstIndex)) {
+                            if (is_int($firstIndex) || $firstIndex == intval($firstIndex) || $firstIndex === NULL) {
                                 $data = new stdClass();
                                 $data->list = $value;
                                 $value = $data;
