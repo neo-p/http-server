@@ -39,7 +39,7 @@ if (!function_exists('stdout')) {
                         // 转对象
                         if (is_array($value)) {
                             $firstIndex = key($value);
-                            if (is_int($firstIndex) || $firstIndex == intval($firstIndex) || $firstIndex === NULL) {
+                            if (ctype_digit($firstIndex) || $firstIndex === NULL) {
                                 $data = new stdClass();
                                 $data->list = $value;
                                 $value = $data;
