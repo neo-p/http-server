@@ -20,31 +20,33 @@ use \Exception;
  */
 class OnRequestEvent
 {
-    public function handler(Request $request, Response $response)
-    {
-        // TODO
-        // Request & Response
-        Processor::messageProcessing($request, $response);
-        // 抛错直接中断所有后续事件
-        try {
-            // Middleware
-            MiddlewareHandler::handler();
-            // Service 
-            Service::execute();
-            // Action
-            Context::get(Context::RESPONSE)->send();
-        } catch (Exception $error) {
+  public function handler(Request $request, Response $response)
+  {
+    // TODO
+    // Request & Response
+    Processor::messageProcessing($request, $response);
+    // 抛错直接中断所有后续事件
+    try {
+      $response = Context::get(Context::RESPONSE);
+      // Middleware
+      MiddlewareHandler::handler();
+      // Middleware is send?
+      if (!$response->isSend()) {
+        // Service 
+        Service::execute();
+        // Action
+        Context::get(Context::RESPONSE)->send();
+      }
+    } catch (Exception $error) {
 
-            if ($error instanceof HttpExitException) {
-                $response = Context::get(Context::RESPONSE);
-                $response->status($error->getCode(), $error->getMessage())
-                        ->content($error->getMessage())
-                        ->send();
-            } else {
-                throw $error;
-            }
-
-        }
+      if ($error instanceof HttpExitException) {
+        $response = Context::get(Context::RESPONSE);
+        $response->status($error->getCode(), $error->getMessage())
+          ->content($error->getMessage())
+          ->send();
+      } else {
+        throw $error;
+      }
     }
-
+  }
 }
