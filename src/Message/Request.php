@@ -1,4 +1,5 @@
 <?php
+
 namespace NeoP\Http\Server\Message;
 
 use Swoole\Http\Request as SwooleRequest;
@@ -43,7 +44,7 @@ class Request extends ServerRequest
 
     public function header(string $key, $default = NULL)
     {
-        
+
         $headers = $this->getParsedBody();
 
         if (isset($headers[$key])) {
@@ -55,17 +56,22 @@ class Request extends ServerRequest
 
     public function headers(?string $key = NULL, $default = NULL)
     {
-        
+
         $headers = $this->getParsedBody();
 
         if ($key === NULL) {
             return $headers;
         }
-        
+
         if (isset($headers[$key])) {
             return $headers[$key];
         }
 
         return $default;
+    }
+
+    public function swoole()
+    {
+        return $this->swooleRequest;
     }
 }
